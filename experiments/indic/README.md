@@ -139,5 +139,14 @@ Transcript: `मैं मुसीबत में पड़ गया।`
 
 At 12.5 Hz, 39 frames represent 3.12 seconds, so the duration increase is expected
 codec-frame padding. Both source and reconstructed files contain non-silent audio.
-Human A/B listening is pending; the decision to freeze Mimi must not be made from
-duration and signal-level measurements alone.
+
+Human A/B listening found that:
+
+- The reconstructed sentence remained clearly understandable.
+- The reconstructed speaker sounded almost the same as the source speaker.
+- Hindi sounds and words were not noticeably corrupted or muffled.
+
+**Decision:** E3 passes for this sample. Freeze Mimi for the first fine-tuning
+experiment and train the text-conditioned FlowLM against latents extracted by the
+pretrained codec. Repeat this evaluation over a broader Hindi/Hinglish validation
+set before treating codec suitability as a general conclusion.
