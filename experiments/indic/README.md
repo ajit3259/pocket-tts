@@ -248,3 +248,19 @@ three punctuation-like `I` rows unresolved.
 No training transcript has been overwritten. The six numeric utterances require
 audio verification before we decide whether their aligned label should use Hindi
 cardinals, English number words, or another spoken form.
+
+Build the targeted human-review packet:
+
+```bash
+uv run python experiments/indic/build_normalization_review.py
+```
+
+The extractor uses the dataset-viewer row API so it downloads only flagged WAV
+assets rather than their complete Parquet shards. It verifies the returned row
+index, filename, transcript, and pinned dataset revision against the manifest
+before accepting each clip.
+
+The generated `outputs/e5_normalization_review/REVIEW.md` links all ten clips.
+Reviewers should record the exact words heard around the flagged token. The
+resulting decisions will become a small versioned override file; they will not be
+hidden inside the general normalizer.
