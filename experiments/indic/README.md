@@ -264,3 +264,8 @@ The generated `outputs/e5_normalization_review/REVIEW.md` links all ten clips.
 Reviewers should record the exact words heard around the flagged token. The
 resulting decisions will become a small versioned override file; they will not be
 hidden inside the general normalizer.
+
+Human review decisions are stored in `normalization_overrides.jsonl` using the
+stable manifest example ID. On 2026-07-24, both the male and female recordings of
+`18 वर्ष` were confirmed to say `अठारह वर्ष`; their model-input text therefore
+uses the spoken cardinal form.
