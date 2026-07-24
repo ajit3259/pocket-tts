@@ -287,3 +287,43 @@ All three suspicious Latin `I` characters were confirmed to be unspoken
 sentence-boundary corruption. They are replaced with `।`; the legitimate spoken
 `ई` in `ई संजीवनी` remains unchanged. All ten E5 review candidates now have
 human-audited model-input text in the override file.
+
+## E6: Resolved Hindi tokenizer corpus
+
+Build the exact model-input manifest and train-only Hindi text corpora:
+
+```bash
+uv run python experiments/indic/build_tokenizer_corpus.py
+```
+
+The builder applies `hi-v1` cleanup and the versioned review overrides. It fails
+if an item still needs review, an override refers to different source text, an
+override remains noncanonical, or an override ID is absent from the manifest.
+
+Generated files under `outputs/e6_tokenizer_corpus/`:
+
+- `model_input_manifest.jsonl`: all source rows with source and resolved text.
+- `hindi_train_all.txt`: one line per source-train utterance.
+- `hindi_train_unique.txt`: exact-text-deduplicated source-train text.
+- `corpus_stats.json`: reproducibility and composition statistics.
+
+### 2026-07-24: E6 corpus build
+
+| Measurement | Result |
+|---|---:|
+| All resolved records | 55,265 |
+| Source-train records | 52,031 |
+| Held-out records excluded from tokenizer text | 3,234 |
+| Unique source-train texts | 47,217 |
+| Duplicate source-train records | 4,814 |
+| Full train characters | 5,127,860 |
+| Unique train characters | 4,874,789 |
+| Applied human-reviewed overrides | 10 |
+
+The full corpus preserves utterance frequency. The unique corpus reduces repeated
+scripts, including prompts recorded by both Rasa speakers. We retain both so this
+choice can be tested rather than embedded in preprocessing.
+
+After review, 52,030 train rows are Devanagari and one is genuinely mixed script:
+the male `फ़ॉर्म six` example. This confirms that E6 is the Hindi component of the
+future tokenizer mixture, not sufficient Hinglish or English coverage by itself.
