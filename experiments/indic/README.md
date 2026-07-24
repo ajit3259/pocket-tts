@@ -3,6 +3,9 @@
 This directory tracks controlled experiments for extending Pocket TTS to Hindi and
 Hindi-English code-mixed speech.
 
+The candidate corpus mixture and sample requirements are tracked in
+[`DATA_PLAN.md`](DATA_PLAN.md).
+
 ## Research Question
 
 Can the pretrained Pocket TTS architecture be adapted to Hindi and Hinglish while
