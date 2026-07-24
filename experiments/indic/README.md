@@ -209,3 +209,42 @@ Devanagari/Latin. Manual inspection showed that the latter contain a stray Latin
 `I` used like punctuation, not genuine Hindi-English code-switching. Therefore,
 these sources provide effectively no Hinglish supervision; a separate
 code-switched source remains necessary.
+
+## E5: Hindi/Hinglish text normalization
+
+The versioned `hi-v1` normalizer implements Unicode NFC and whitespace cleanup,
+conservative review flags, and explicitly requested Hindi cardinal expansion.
+Its policy and golden examples are documented in
+[`TEXT_NORMALIZATION.md`](TEXT_NORMALIZATION.md).
+
+Audit the local manifest without changing it:
+
+```bash
+uv run python experiments/indic/audit_text_normalization.py \
+  --number-mode preserve
+```
+
+Preview explicit cardinal expansion:
+
+```bash
+uv run python experiments/indic/audit_text_normalization.py \
+  --number-mode cardinal
+```
+
+### 2026-07-24: E5 normalization audit
+
+| Finding | Rows or occurrences |
+|---|---:|
+| Unicode NFC changes | 12,581 rows |
+| Whitespace changes | 845 rows |
+| Standalone integers requiring review | 6 occurrences |
+| Embedded digit corruption | 1 occurrence |
+| Possible punctuation-like Latin `I` | 3 occurrences |
+
+Default `preserve` mode flags 10 rows and does not expand their numbers. Explicit
+`cardinal` mode proposes six integer expansions, leaving the embedded digit and
+three punctuation-like `I` rows unresolved.
+
+No training transcript has been overwritten. The six numeric utterances require
+audio verification before we decide whether their aligned label should use Hindi
+cardinals, English number words, or another spoken form.
