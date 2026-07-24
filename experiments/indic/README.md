@@ -278,3 +278,7 @@ the genuine English code-switch.
 Both recordings containing the total `864` were confirmed to say the Hindi
 cardinal `आठ सौ चौंसठ`. Together with the two `18` decisions, this resolves all
 six standalone-integer occurrences in the audited corpus.
+
+The embedded `0` in `गाली0गलौज` was not spoken. Human review confirmed the
+compound `गाली-गलौज`, so this example receives an explicit corrupted-separator
+override rather than a general rule that removes embedded zeros.
