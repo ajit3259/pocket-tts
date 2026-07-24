@@ -269,3 +269,8 @@ Human review decisions are stored in `normalization_overrides.jsonl` using the
 stable manifest example ID. On 2026-07-24, both the male and female recordings of
 `18 वर्ष` were confirmed to say `अठारह वर्ष`; their model-input text therefore
 uses the spoken cardinal form.
+
+The two `फ़ॉर्म 6` recordings demonstrate why overrides are per example. The male
+speaker says English `six`, while the female speaker says Hindi `छह`. Their
+aligned model-input texts preserve that difference, including Latin script for
+the genuine English code-switch.
