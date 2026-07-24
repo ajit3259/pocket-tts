@@ -13,13 +13,43 @@ Adapt the released Pocket TTS model to:
 The first training experiments will keep Mimi frozen. Audio is still passed through
 Mimi to produce target continuous latents, but Mimi receives no gradient updates.
 
-## Training Sample Contract
+## Dataset Manifest Contract
+
+The first manifest is metadata-only. It identifies an audio-containing Parquet row
+without copying or decoding its embedded audio:
+
+```text
+example_id
+source_dataset
+source_license
+source_split
+source_locator      # repository, pinned revision, shard, row, audio column
+speaker_id
+language_mode
+script_mode
+text_raw
+text_normalized
+duration_seconds
+gender
+style
+```
+
+Keeping `text_raw` and `text_normalized` separate is important. We can always audit
+what the speaker said while independently improving the text representation that
+the model receives.
+
+`language_mode` records the linguistic training interface; `script_mode` is only
+an objective Unicode classification. Latin text in a Hindi dataset is not
+automatically labeled as Romanized Hindi because script alone cannot distinguish
+Romanized Hindi from English.
+
+## Materialized Training Sample Contract
 
 Each training example should contain:
 
 ```text
 target_audio
-target_text
+target_text           # selected from or derived from the metadata manifest
 speaker_id
 language_mode       # hi, hi-roman, hi-en, or en
 source_dataset
@@ -30,6 +60,10 @@ prompt_audio
 `prompt_audio` and `target_audio` should be different utterances from the same
 speaker. Using the target itself as its voice prompt leaks target content and can
 teach the model to copy instead of learning text-to-speech.
+
+Audio materialization and prompt pairing happen after metadata validation. This
+keeps the initial audit small and prevents an accidental full dataset download on
+a development laptop.
 
 Speaker IDs must be stable within a source dataset and namespaced across datasets.
 Training, validation, and test splits must be speaker-disjoint when enough speakers

@@ -153,3 +153,59 @@ Human A/B listening found that:
 experiment and train the text-conditioned FlowLM against latents extracted by the
 pretrained codec. Repeat this evaluation over a broader Hindi/Hinglish validation
 set before treating codec suitability as a general conclusion.
+
+## E4: Metadata audit and unified manifest
+
+`audit_datasets.py` reads selected Parquet metadata columns from the gated Rasa and
+IndicVoices-R repositories. It deliberately excludes the embedded `audio` column.
+Each JSONL record contains a pinned repository revision, shard, and row index so
+audio can be materialized later on the training machine.
+
+Install the optional data dependency:
+
+```bash
+uv sync --extra indic-data
+```
+
+Run a small smoke audit:
+
+```bash
+uv run --extra indic-data python experiments/indic/audit_datasets.py \
+  --split test \
+  --max-shards 1 \
+  --max-rows 100
+```
+
+Run the complete Rasa and IndicVoices-R metadata audit by omitting
+`--max-shards` and `--max-rows`. Results are written under
+`experiments/indic/outputs/e4_data_audit/` and are ignored by Git.
+
+The audit reports total records, hours, speakers, duration percentiles, metadata
+distributions, missing fields, prompt-eligible speakers, and speaker overlap
+between source-provided splits.
+
+The audit preserves source-provided splits. It does not yet declare them suitable
+for model evaluation; speaker overlap and the two-speaker limitation of Rasa must
+be reviewed before defining our final train/validation/test policy.
+
+### 2026-07-24: E4 complete metadata audit
+
+| Source | Records | Duration | Speakers |
+|---|---:|---:|---:|
+| IndicVoices-R Hindi | 26,694 | 72.752 h | 384 |
+| Rasa Hindi | 28,571 | 50.829 h | 2 |
+| **Combined** | **55,265** | **123.581 h** | **386** |
+
+All records have non-empty raw text, normalized text, duration, and speaker IDs.
+All 386 speakers have at least two utterances, which makes distinct prompt/target
+pairing possible.
+
+IndicVoices-R has no speaker overlap between its source train and test splits.
+Rasa's male and female speakers both occur in train and test, so Rasa's source
+test split cannot measure unseen-speaker voice-cloning generalization.
+
+The audit classified 55,262 transcripts as Devanagari and three as mixed
+Devanagari/Latin. Manual inspection showed that the latter contain a stray Latin
+`I` used like punctuation, not genuine Hindi-English code-switching. Therefore,
+these sources provide effectively no Hinglish supervision; a separate
+code-switched source remains necessary.
