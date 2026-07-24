@@ -274,3 +274,7 @@ The two `फ़ॉर्म 6` recordings demonstrate why overrides are per exam
 speaker says English `six`, while the female speaker says Hindi `छह`. Their
 aligned model-input texts preserve that difference, including Latin script for
 the genuine English code-switch.
+
+Both recordings containing the total `864` were confirmed to say the Hindi
+cardinal `आठ सौ चौंसठ`. Together with the two `18` decisions, this resolves all
+six standalone-integer occurrences in the audited corpus.
