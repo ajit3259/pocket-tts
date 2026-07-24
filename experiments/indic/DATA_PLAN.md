@@ -162,6 +162,10 @@ English words in genuinely code-switched transcripts should remain in Latin scri
 We must not normalize all borrowed English words into Devanagari because that would
 remove the code-switch signal the model needs to learn.
 
+The distinction between conservative audio-aligned training normalization and
+policy-driven inference normalization is specified in
+[`TEXT_NORMALIZATION.md`](TEXT_NORMALIZATION.md).
+
 ## Data Validation Gates
 
 Before a sample can enter training:
