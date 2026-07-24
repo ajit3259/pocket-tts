@@ -327,3 +327,71 @@ choice can be tested rather than embedded in preprocessing.
 After review, 52,030 train rows are Devanagari and one is genuinely mixed script:
 the male `फ़ॉर्म six` example. This confirms that E6 is the Hindi component of the
 future tokenizer mixture, not sufficient Hinglish or English coverage by itself.
+
+## E7: External tokenizer text sources
+
+Acquire SLR104 Hinglish and LibriTTS-R English metadata without downloading their
+audio:
+
+```bash
+uv run python experiments/indic/acquire_tokenizer_text.py
+```
+
+The SLR104 official archive bundles audio and transcripts in a 7.3 GB file. For
+text acquisition, the script reads the separately exposed CSV metadata from
+`ujs/hinglish-compressed` at pinned revision
+`5c22260f73a889c457861b1647e96e4254dc1047`. Its loader identifies the content as
+OpenSLR-104. The official OpenSLR page remains the authority for dataset identity
+and its CC BY-SA 4.0 license; the Hugging Face repository is only a transport
+mirror.
+
+LibriTTS-R text is read column-selectively from `pharaouk/libritts_r` at pinned
+Parquet revision `42c834ebdd6db1f79120dad12347e45fa34d3650`. PyArrow requests
+only normalized/original text, utterance ID, speaker ID, and chapter ID. It does
+not materialize the embedded audio column.
+
+| Source metadata | Records | Unique text | Split detail |
+|---|---:|---:|---|
+| SLR104 Hindi-English | 55,961 | 45,964 | 52,825 train; 3,136 test |
+| LibriTTS-R clean-100 | 33,232 | 32,888 | train only |
+
+Of the SLR104 train rows, 44,412 are genuinely mixed Devanagari-Latin, 7,456 are
+Devanagari-only, 955 are Latin-only, and two contain neither script. Dataset name
+alone is therefore not used as the code-switch label.
+
+## E8: Multilingual tokenizer mixture
+
+Build the train-only mixture:
+
+```bash
+uv run python experiments/indic/build_tokenizer_mixture.py
+```
+
+The builder uses all unique E6 Hindi text as the anchor. It samples only
+mixed-script SLR104 train rows and LibriTTS-R train rows using stable SHA-256
+ranks. Budgets are measured in non-whitespace Unicode code points because
+SentencePiece learns from character/subword exposure, not hours of audio.
+
+One IndicVoices-R row is excluded in `tokenizer_exclusions.jsonl`: its normalized
+February token contains an unrelated invisible Mongolian separator and a stray
+combining mark, while its verbatim transcript differs. The exact text hash is
+checked before applying the exclusion. Correction is deferred until the audio is
+reviewed. Other unsafe control/format characters fail the build; Devanagari ZWJ
+and ZWNJ remain allowed.
+
+### 2026-07-24: E8 corpus build
+
+| Stream | Selected lines | Non-space characters | Actual share |
+|---|---:|---:|---:|
+| Hindi | 47,216 | 3,892,968 | 59.9993% |
+| Hinglish | 30,947 | 1,622,081 | 24.9999% |
+| English | 12,391 | 973,304 | 15.0008% |
+| **Total** | **90,554** | **6,488,353** | **100%** |
+
+The generated `tokenizer_train.txt` contains no held-out rows or exact duplicate
+texts. A second build was byte-identical. Its SHA-256 is
+`d45e0f914e127deeef2748b01f0b0687072e402bbf467c8cfab13ac604f0cc5e`.
+
+This English stream is a public read-speech replay proxy. It does not reproduce
+the much broader private training distribution of the released Pocket TTS model,
+so English regression must still be measured explicitly.

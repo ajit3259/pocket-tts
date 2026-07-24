@@ -103,6 +103,9 @@ are available.
 - License: CC BY-SA 4.0. The share-alike implications for distributed model
   weights require review before production use.
 - Source: https://www.openslr.org/104/
+- Text transport: the pinned `ujs/hinglish-compressed` metadata mirror identifies
+  itself as an OpenSLR-104 conversion. OpenSLR remains the identity and license
+  authority.
 
 ### LibriTTS-R
 
@@ -111,6 +114,8 @@ are available.
 - We need only a sampled replay subset, not the entire corpus.
 - License: CC BY 4.0.
 - Source: https://google.github.io/df-conformer/librittsr/
+- Limitation: this public audiobook stream is a replay proxy, not the released
+  model's original English training distribution.
 
 ## Sources Not Selected as Primary Training Data
 
@@ -141,6 +146,13 @@ These are starting values, not final hyperparameters. We will adjust them based 
 - Speaker similarity.
 - Validation loss per data stream.
 - Generated speech failure modes.
+
+The table above is for later **audio/acoustic training**, where the two Hindi
+sources remain separately sampled. The E8 **tokenizer corpus** currently combines
+unique Hindi text into one 60% character-budget stream, then uses 25% genuinely
+mixed-script SLR104 text and 15% LibriTTS-R English. These choices are related but
+not interchangeable: hours and speakers matter for acoustic training, while text
+and subword exposure matter for tokenizer training.
 
 ## Text Representations
 
