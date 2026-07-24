@@ -282,3 +282,8 @@ six standalone-integer occurrences in the audited corpus.
 The embedded `0` in `गाली0गलौज` was not spoken. Human review confirmed the
 compound `गाली-गलौज`, so this example receives an explicit corrupted-separator
 override rather than a general rule that removes embedded zeros.
+
+All three suspicious Latin `I` characters were confirmed to be unspoken
+sentence-boundary corruption. They are replaced with `।`; the legitimate spoken
+`ई` in `ई संजीवनी` remains unchanged. All ten E5 review candidates now have
+human-audited model-input text in the override file.
