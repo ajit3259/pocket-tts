@@ -536,3 +536,38 @@ The first 4,000 embedding rows are tensor-exact copies, and old padding row
 two independent builds were byte-identical. Generated weights and the local
 config remain under the ignored `outputs/` directory; the committed script and
 hashes make them reproducible.
+
+## E12: Reconstruct the training objective
+
+The released repository contains inference but not the original trainer. The
+reconstructed contract and its evidence are documented in
+[`TRAINING_CONTRACT.md`](TRAINING_CONTRACT.md).
+
+The CPU research implementation in `training_objective.py` now covers:
+
+- inference-compatible voice, text, and shifted-target sequence assembly;
+- raw voice latents versus normalized target latents;
+- the CALM trigonometric path expressed in Pocket's noise-to-data time direction;
+- flow matching and JVP-based Lagrangian self-distillation;
+- the 8x head multiplier with six FM and two LSD draws; and
+- masked EOS training.
+
+Six focused tests include analytic zero-error checks for the FM and LSD equations
+and a complete backward pass through the text embedding, transformer, flow head,
+and EOS head on CPU.
+
+Review of the community fine-tuning fork at `freds0/pocket-tts@1d77e3f` found
+useful engineering ideas but also unresolved compatibility questions: a linear
+rather than trigonometric path, unverified adaptive-weight modifications, and
+text dropout without a matching CFG inference path. It remains a reference, not
+the base of our trainer.
+
+The LSD paper and its authors' reference code disagree on whether the independently
+averaged FM and LSD branches are added or sample-weighted after the 75/25 split.
+The research API exposes both choices and requires the caller to select one; the
+tiny overfit will compare them rather than hiding the ambiguity in a default.
+
+The adaptive weighting network is intentionally not implemented yet. The first
+GPU gate is an unweighted 8-32 utterance overfit on one H100, with Mimi and latent
+statistics frozen. Raw FM/LSD errors, EOS calibration, generated audio, resume,
+and gradient flow must all pass before distributed training.
