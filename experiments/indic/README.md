@@ -447,3 +447,48 @@ that preserves all released 4K pieces and IDs, then adds Hindi/Hinglish pieces.
 Number probes test representation only. For example, the 8K tokenizer encodes
 `1234` efficiently, but it does not decide between digit-sequence and cardinal
 pronunciation. That remains a text-normalization and audio-alignment decision.
+
+## E10: ID-preserving 8K extension
+
+Build an 8K tokenizer that retains the complete released 4K vocabulary and IDs,
+then evaluate it against both the released and fresh tokenizers:
+
+```bash
+uv sync --extra indic-data
+uv run python experiments/indic/extend_tokenizer.py
+uv run python experiments/indic/evaluate_tokenizer_extension.py
+```
+
+The extension copies released IDs `0–3999` exactly, including piece types and
+scores. It then appends the 4,000 highest-scored unseen `NORMAL` pieces from the
+fresh E9 donor that contain at least one Devanagari code point. Restricting the
+additions to Devanagari makes pure Latin English segmentation invariant by
+construction. The donor scores remain unchanged so its relative ranking among
+the new pieces is retained.
+
+### 2026-07-27: E10 transfer/compression result
+
+| Tokenizer | Hindi tok/char | Hinglish tok/char | English tok/char | Released learned pieces retained |
+|---|---:|---:|---:|---:|
+| Released English 4K | 1.606 | 1.098 | 0.387 | 3,740 (100%) |
+| Fresh bilingual 8K | **0.347** | **0.294** | 0.377 | 1,287 (34.4%) |
+| ID-preserving extended 8K | 0.359 | 0.342 | 0.387 | **3,740 (100%)** |
+
+The extended model reduces token count by 77.6% for Hindi and 68.8% for
+mixed-script Hinglish relative to the released tokenizer. Compared with the
+fresh 8K model, it uses 3.6% more Hindi tokens and 16.6% more Hinglish tokens.
+That is the cost of retaining the released tokenizer's English and Latin pieces
+instead of replacing them with pieces optimized for the E8 mixture.
+
+All 5,702 LibriTTS-R dev texts have exactly the same token IDs under the released
+and extended tokenizers. All 3,161 Hindi and 2,309 mixed-script Hinglish texts
+use at least one new ID; 91.2% of Hindi tokens and 55.0% of Hinglish tokens come
+from the appended range. Romanized Hindi remains exactly the released behavior
+because this extension deliberately adds no Latin-only pieces.
+
+The deterministic extended model SHA-256 is
+`c980ff465a6e8b1ee472f897560b898c9eb69beeedf803e4e6a603c3638725e1`.
+It is the preferred transfer candidate: expand the FlowLM lookup table from
+4,001 to 8,001 rows, copy old token rows `0–3999` exactly, initialize new token
+rows `4000–7999` from their released-tokenizer decompositions, and copy the old
+padding row `4000` to the new final padding row `8000`.

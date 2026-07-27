@@ -160,6 +160,12 @@ fine-tuning, compare it with an 8K extension that keeps the released 4K pieces
 and IDs fixed. This isolates the benefit of maximum compression from the benefit
 of preserving pretrained English text embeddings.
 
+The follow-up extension retains all 4,000 released IDs and gives identical
+token-ID sequences on every LibriTTS-R dev example. It is within 3.6% of the
+fresh 8K model's Hindi token count while reducing Hindi tokens by 77.6% relative
+to the released tokenizer. Use the ID-preserving extension for the first
+fine-tuning run; keep the fresh 8K model as the higher-risk ablation.
+
 ## Text Representations
 
 The same spoken Hindi may need more than one valid textual interface:
