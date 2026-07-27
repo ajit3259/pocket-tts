@@ -619,3 +619,59 @@ Generated packet files live under `outputs/e13_tiny_overfit_packet/`:
 E13 proves that the selected examples are internally usable. It does not prove
 that the reconstructed objective can learn them. That is the next one-H100
 overfit gate.
+
+## E14: Build and smoke-test the training harness
+
+`tiny_overfit_training.py` connects the E13 packet to E12's reconstructed
+objective. It has two explicit stages.
+
+First, cache raw Mimi latents and token IDs:
+
+```bash
+uv run python -m experiments.indic.tiny_overfit_training cache
+```
+
+The cache is allowed only when all packet clips are accepted and their current
+audio hashes match both the manifest and human review. It is bound to the packet
+manifest, review, E11 checkpoint, E10 tokenizer, and latent-file hashes.
+
+Second, run training with an explicit loss reduction and device:
+
+```bash
+uv run python -m experiments.indic.tiny_overfit_training train \
+  --run-dir experiments/indic/outputs/e14_sample_mean \
+  --device cuda:0 \
+  --loss-combination sample_mean \
+  --max-steps 1 \
+  --checkpoint-every 1
+```
+
+There is intentionally no default for `--loss-combination`; every run must state
+`branch_sum` or `sample_mean`. A non-resume run refuses to reuse a nonempty run
+directory. Resume restores FlowLM, AdamW moments, the explicit flow-noise
+generator, and completed step, and rejects configuration, cache, file-hash, or
+metrics-log mismatches.
+
+Training batches contain the male and female recordings of one shared text.
+Eight batches form an epoch and are deterministically reshuffled each epoch from
+the run seed. Mimi stays frozen and is not moved to the training GPU after cache
+validation.
+
+The baseline update policy is:
+
+- AdamW with `lr=3e-5`, betas `(0.9, 0.95)`, and gradient norm clipping at 1.0;
+- normal weight decay on non-embedding FlowLM parameters;
+- no embedding weight decay, so unseen Hindi pieces do not drift;
+- full optimizer updates for added Hindi rows;
+- one-tenth of the actual post-AdamW delta for preserved English rows; and
+- exact restoration of the padding row after every step.
+
+The real-model CPU smoke and its interpretation are recorded in
+[`E14_CPU_SMOKE.md`](E14_CPU_SMOKE.md). Its cache contains 1,060 target frames,
+uses added Hindi rows for 290 of 304 token occurrences, has no unknown tokens,
+and remains well-scaled after the frozen checkpoint normalization.
+
+The one-step smoke passed gradient, parameter-update, checkpoint, and resume
+checks. It also established a `15.95%` early EOS false-trigger baseline at the
+deployed `-4.0` threshold. E14 validates the harness, not learning or generated
+speech; those remain the one-H100 overfit gate.
