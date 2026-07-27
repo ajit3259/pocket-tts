@@ -166,6 +166,13 @@ fresh 8K model's Hindi token count while reducing Hindi tokens by 77.6% relative
 to the released tokenizer. Use the ID-preserving extension for the first
 fine-tuning run; keep the fresh 8K model as the higher-risk ablation.
 
+Before GPU training, expand the text lookup table on CPU and validate strict
+checkpoint loading. Released byte and rare Devanagari embedding rows are nearly
+zero-norm, so decomposition averaging is retained as an ablation rather than the
+default. Initialize new rows deterministically at the trained embedding scale,
+copy all released token rows exactly, and move the old padding row to the new
+final row.
+
 ## Text Representations
 
 The same spoken Hindi may need more than one valid textual interface:

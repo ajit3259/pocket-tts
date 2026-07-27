@@ -490,5 +490,49 @@ The deterministic extended model SHA-256 is
 `c980ff465a6e8b1ee472f897560b898c9eb69beeedf803e4e6a603c3638725e1`.
 It is the preferred transfer candidate: expand the FlowLM lookup table from
 4,001 to 8,001 rows, copy old token rows `0–3999` exactly, initialize new token
-rows `4000–7999` from their released-tokenizer decompositions, and copy the old
-padding row `4000` to the new final padding row `8000`.
+rows `4000–7999`, and copy the old padding row `4000` to the new final padding
+row `8000`.
+
+## E11: FlowLM embedding expansion
+
+Prepare a strict-loadable checkpoint and matching local config:
+
+```bash
+uv run python experiments/indic/prepare_extended_checkpoint.py
+```
+
+This remains a CPU-only preparation step. The source checkpoint contains
+`flow_lm.conditioner.embed.weight` with shape `4001 x 1024`: 4,000 token rows
+plus one padding row. The expanded checkpoint has shape `8001 x 1024`.
+
+An initial plan was to average the released-tokenizer decomposition of each new
+piece. Measurement rejected that as the default: the raw averages have mean norm
+`0.057`, while trained released pieces have mean norm about `0.35`. Most fallback
+byte and rare Devanagari rows were barely trained, so their average is not a
+useful semantic initialization.
+
+The default `matched-random-v1` initializer instead samples deterministically
+from the per-dimension distribution of trained released pieces, then matches
+each new row to a sampled trained-row norm. It does not claim to know Hindi
+semantics; it gives optimization healthy, distinct starting vectors. Fine-tuning
+must teach their pronunciation and context.
+
+### 2026-07-27: E11 checkpoint result
+
+| Measurement | Result |
+|---|---:|
+| Source embedding | `4001 x 1024`, bfloat16 |
+| Expanded embedding | `8001 x 1024`, bfloat16 |
+| Trained source rows used for statistics | 3,583 |
+| Trained source mean row norm | 0.369 |
+| New mean row norm | 0.365 |
+| Raw decomposition-average mean norm | 0.057 |
+| Mean old-token decomposition length | 6.93 |
+| Strict Pocket TTS model load | Pass |
+
+The first 4,000 embedding rows are tensor-exact copies, and old padding row
+`4000` is tensor-exact at new row `8000`. The generated checkpoint SHA-256 is
+`b6661073efe6dd9b94a1a5fc94d4cb19c506d84c62395a95d07aaca15109e148`;
+two independent builds were byte-identical. Generated weights and the local
+config remain under the ignored `outputs/` directory; the committed script and
+hashes make them reproducible.
