@@ -571,3 +571,51 @@ The adaptive weighting network is intentionally not implemented yet. The first
 GPU gate is an unweighted 8-32 utterance overfit on one H100, with Mimi and latent
 statistics frozen. Raw FM/LSD errors, EOS calibration, generated audio, resume,
 and gradient flow must all pass before distributed training.
+
+## E13: Build the tiny overfit packet
+
+`build_tiny_overfit_packet.py` materializes the human-audited data unit for the
+first GPU run:
+
+```bash
+uv run python -m experiments.indic.build_tiny_overfit_packet
+```
+
+The packet deliberately uses a controlled subset of Rasa rather than sampling
+many datasets or speakers:
+
+- one female and one male Hindi speaker;
+- one distinct prompt recording per speaker;
+- eight target texts, each recorded by both speakers;
+- 16 target recordings and 2 prompt recordings, totaling 92.254 seconds;
+- train split, 2-8 second targets, Devanagari-only text, and no digits;
+- no normalization changes or human normalization overrides; and
+- deterministic SHA-256 selection from 13,191 eligible recordings.
+
+Using the same eight target texts for both speakers controls the text variable.
+The target voice therefore cannot be inferred from the sentence and must be
+conditioned on the same-speaker prompt. Prompt recordings are not reused as
+targets.
+
+Materialization validates the pinned dataset-viewer row, source filename,
+transcript, revision, mono PCM format, sample rate, duration, and SHA-256. It is
+resumable: existing audio is re-read and validated, and listening decisions are
+preserved only while the audio hash remains identical.
+
+All 18 clips passed human review for audio cleanliness, transcript agreement, and
+broad speaker identity. The male recordings were stylistically consistent. The
+female recordings remained the same broad voice but varied mildly between formal
+and conversational delivery. This is retained as a data observation because a
+prompt conditions speaking style as well as speaker identity.
+
+Generated packet files live under `outputs/e13_tiny_overfit_packet/`:
+
+- `manifest.jsonl`: training and prompt pairing contract with source provenance;
+- `packet_stats.json`: selection policy, input and audio hashes, and review counts;
+- `review.json`: hash-bound machine-readable listening decisions;
+- `REVIEW.md`: human-readable listening worksheet; and
+- 18 local WAV files, which remain ignored by Git.
+
+E13 proves that the selected examples are internally usable. It does not prove
+that the reconstructed objective can learn them. That is the next one-H100
+overfit gate.

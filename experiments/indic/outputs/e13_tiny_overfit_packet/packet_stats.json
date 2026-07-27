@@ -1,0 +1,40 @@
+{
+  "audio_seconds": 92.254,
+  "audio_sha256": "3271fd50186ebc53f0cdc3f98d8ab767c2a5b336c7375054b776715f663ef154",
+  "eligible_recordings": 13191,
+  "human_review": {
+    "complete": true,
+    "decisions": {
+      "accepted": 18
+    }
+  },
+  "prompt_recordings": 2,
+  "schema_version": 1,
+  "selection_policy": {
+    "digits_allowed": false,
+    "normalization_changes_allowed": false,
+    "normalization_overrides_allowed": false,
+    "prompt_and_target_disjoint": true,
+    "prompt_duration_seconds": [
+      3.0,
+      6.0
+    ],
+    "script_mode": "devanagari",
+    "shared_text_across_speakers": true,
+    "source_dataset": "rasa",
+    "source_split": "train",
+    "target_duration_seconds": [
+      2.0,
+      8.0
+    ]
+  },
+  "selection_seed": "e13-rasa-paired-v1",
+  "source_manifest": "experiments/indic/outputs/e6_tokenizer_corpus/model_input_manifest.jsonl",
+  "source_manifest_sha256": "65cee84f0f01af681e9015dc585c3b6862fc9ba18d5a582c57309c0529a56a72",
+  "speakers": [
+    "rasa:hindi:female",
+    "rasa:hindi:male"
+  ],
+  "target_recordings": 16,
+  "target_text_pairs": 8
+}
