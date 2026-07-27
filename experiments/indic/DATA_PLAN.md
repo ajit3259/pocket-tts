@@ -154,6 +154,12 @@ mixed-script SLR104 text and 15% LibriTTS-R English. These choices are related b
 not interchangeable: hours and speakers matter for acoustic training, while text
 and subword exposure matter for tokenizer training.
 
+The first tokenizer ablation favors a retrained 8K vocabulary for compression,
+but it preserves only 34.4% of the released learned piece strings. Before model
+fine-tuning, compare it with an 8K extension that keeps the released 4K pieces
+and IDs fixed. This isolates the benefit of maximum compression from the benefit
+of preserving pretrained English text embeddings.
+
 ## Text Representations
 
 The same spoken Hindi may need more than one valid textual interface:

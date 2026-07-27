@@ -14,7 +14,7 @@ from huggingface_hub import HfApi, HfFileSystem
 from experiments.indic.tokenizer_sources import (
     LIBRITTS_R_MIRROR_REPO,
     LIBRITTS_R_PARQUET_REVISION,
-    LIBRITTS_R_SPLIT,
+    LIBRITTS_R_SPLITS,
     SLR104_METADATA_FILES,
     SLR104_MIRROR_REPO,
     SLR104_MIRROR_REVISION,
@@ -53,17 +53,19 @@ def download_hf_file(
 
 
 def list_libritts_shards(api: HfApi, max_shards: int | None = None) -> list[str]:
-    prefix = f"clean/{LIBRITTS_R_SPLIT}/"
-    shards = sorted(
-        path
-        for path in api.list_repo_files(
-            LIBRITTS_R_MIRROR_REPO, repo_type="dataset", revision=LIBRITTS_R_PARQUET_REVISION
-        )
-        if path.startswith(prefix) and path.endswith(".parquet")
+    repo_files = api.list_repo_files(
+        LIBRITTS_R_MIRROR_REPO, repo_type="dataset", revision=LIBRITTS_R_PARQUET_REVISION
     )
-    if not shards:
-        raise RuntimeError("No pinned LibriTTS-R train.clean.100 Parquet shards found")
-    return shards[:max_shards]
+    shards = []
+    for split in LIBRITTS_R_SPLITS:
+        prefix = f"clean/{split}/"
+        split_shards = sorted(
+            path for path in repo_files if path.startswith(prefix) and path.endswith(".parquet")
+        )
+        if not split_shards:
+            raise RuntimeError(f"No pinned LibriTTS-R {split} Parquet shards found")
+        shards.extend(split_shards[:max_shards])
+    return shards
 
 
 def read_libritts_shard(shard: str) -> list[dict[str, Any]]:
@@ -78,8 +80,9 @@ def read_libritts_shard(shard: str) -> list[dict[str, Any]]:
     fs = HfFileSystem()
     with fs.open(path, "rb") as handle:
         table = pq.ParquetFile(handle).read(columns=list(LIBRITTS_COLUMNS))
+    split = shard.split("/", maxsplit=2)[1]
     return [
-        adapt_libritts_r_record(row, shard=shard, row_index=row_index)
+        adapt_libritts_r_record(row, split=split, shard=shard, row_index=row_index)
         for row_index, row in enumerate(table.to_pylist())
     ]
 

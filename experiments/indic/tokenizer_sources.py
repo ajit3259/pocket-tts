@@ -27,7 +27,7 @@ LIBRITTS_R_OFFICIAL_URL = "https://www.openslr.org/141/"
 LIBRITTS_R_MIRROR_REPO = "pharaouk/libritts_r"
 LIBRITTS_R_MIRROR_REVISION = "9725807a9c85b52a5aba775d9c4be780b37d82bd"
 LIBRITTS_R_PARQUET_REVISION = "42c834ebdd6db1f79120dad12347e45fa34d3650"
-LIBRITTS_R_SPLIT = "train.clean.100"
+LIBRITTS_R_SPLITS = ("train.clean.100", "dev.clean")
 
 
 def normalize_tokenizer_text(text: str) -> str:
@@ -118,16 +118,18 @@ def adapt_slr104_record(
     }
 
 
-def adapt_libritts_r_record(row: dict[str, Any], *, shard: str, row_index: int) -> dict[str, Any]:
+def adapt_libritts_r_record(
+    row: dict[str, Any], *, split: str, shard: str, row_index: int
+) -> dict[str, Any]:
     source_utterance_id = str(row["id"])
     original = str(row["text_original"])
     model_input = normalize_tokenizer_text(str(row["text_normalized"]))
     return {
         "schema_version": TEXT_SOURCE_SCHEMA_VERSION,
-        "example_id": _example_id(LIBRITTS_R_DATASET, LIBRITTS_R_SPLIT, source_utterance_id),
+        "example_id": _example_id(LIBRITTS_R_DATASET, split, source_utterance_id),
         "source_dataset": LIBRITTS_R_DATASET,
         "source_license": LIBRITTS_R_LICENSE,
-        "source_split": LIBRITTS_R_SPLIT,
+        "source_split": split,
         "source_utterance_id": source_utterance_id,
         "speaker_id": str(row["speaker_id"]),
         "chapter_id": str(row["chapter_id"]),

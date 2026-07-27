@@ -63,13 +63,15 @@ def test_adapt_libritts_record_uses_tts_normalized_text() -> None:
             "speaker_id": 100,
             "chapter_id": 200,
         },
-        shard="clean/train.clean.100/0000.parquet",
+        split="dev.clean",
+        shard="clean/dev.clean/0000.parquet",
         row_index=3,
     )
 
     assert record["text_raw"] == "Mr. Smith paid $2."
     assert record["text_model_input"] == "Mister Smith paid two dollars."
     assert record["language_mode"] == "en"
+    assert record["source_split"] == "dev.clean"
     assert record["source_locator"]["parquet_revision"]
 
 

@@ -353,7 +353,7 @@ not materialize the embedded audio column.
 | Source metadata | Records | Unique text | Split detail |
 |---|---:|---:|---|
 | SLR104 Hindi-English | 55,961 | 45,964 | 52,825 train; 3,136 test |
-| LibriTTS-R clean-100 | 33,232 | 32,888 | train only |
+| LibriTTS-R clean-100 + dev-clean | 38,968 | 38,540 | 33,232 train; 5,736 dev |
 
 Of the SLR104 train rows, 44,412 are genuinely mixed Devanagari-Latin, 7,456 are
 Devanagari-only, 955 are Latin-only, and two contain neither script. Dataset name
@@ -395,3 +395,55 @@ texts. A second build was byte-identical. Its SHA-256 is
 This English stream is a public read-speech replay proxy. It does not reproduce
 the much broader private training distribution of the released Pocket TTS model,
 so English regression must still be measured explicitly.
+
+## E9: SentencePiece tokenizer candidates
+
+Train controlled 4K, 6K, and 8K unigram candidates:
+
+```bash
+uv run python experiments/indic/train_tokenizer_candidates.py
+uv run python experiments/indic/evaluate_tokenizer_candidates.py
+```
+
+All candidates use the released tokenizer's observable interface: identity
+normalization, byte fallback, and IDs `unk=0`, `bos=1`, `eos=2`, and `pad=3`.
+Training uses all 90,554 E8 lines, one thread, no sentence sampling, and no
+shuffle. A second run produced byte-identical model files.
+
+Evaluation is exact-text-deduplicated and held out by source:
+
+- 3,161 Hindi test texts from E6.
+- 2,309 genuinely mixed-script SLR104 test texts.
+- 5,702 LibriTTS-R `dev.clean` English texts.
+- Ten curated Romanized-Hindi spellings and six number-format probes.
+
+### 2026-07-27: E9 compression results
+
+| Tokenizer | Hindi tok/char | Hinglish tok/char | English tok/char | Romanized tok/char |
+|---|---:|---:|---:|---:|
+| Released English 4K | 1.606 | 1.098 | 0.387 | 0.584 |
+| Bilingual 4K | 0.392 | 0.326 | 0.438 | 0.712 |
+| Bilingual 6K | 0.363 | 0.304 | 0.401 | 0.638 |
+| Bilingual 8K | **0.347** | **0.294** | **0.377** | 0.619 |
+
+The 8K candidate reduces token count by about 78% for Hindi and 73% for
+mixed-script Hinglish relative to the released tokenizer. On the in-domain
+LibriTTS-R English evaluation it is also 2.5% shorter. Romanized Hindi remains
+slightly worse because E8 intentionally contains real Devanagari-Latin speech
+transcripts, not synthetic Romanized-Hindi text.
+
+| Candidate | Learned pieces | Devanagari pieces | Latin pieces | Released learned pieces reused |
+|---|---:|---:|---:|---:|
+| 4K | 3,740 | 2,419 | 1,232 | 855 (22.9%) |
+| 6K | 5,740 | 3,698 | 1,945 | 1,101 (29.4%) |
+| 8K | 7,740 | 4,928 | 2,699 | 1,287 (34.4%) |
+
+The retrained 8K tokenizer is the leading compression candidate, but not yet the
+final transfer choice. Only the four meta pieces and 256 byte pieces retain their
+old IDs; learned embeddings must be mapped by exact piece string. The next
+tokenizer experiment should compare this model with an extended 8K tokenizer
+that preserves all released 4K pieces and IDs, then adds Hindi/Hinglish pieces.
+
+Number probes test representation only. For example, the 8K tokenizer encodes
+`1234` efficiently, but it does not decide between digit-sequence and cardinal
+pronunciation. That remains a text-normalization and audio-alignment decision.
