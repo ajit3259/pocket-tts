@@ -1,0 +1,25 @@
+{
+  "control_items": 2,
+  "deterministic_results_sha256": "30ee7a7e50a5cd7c266e8b2b7b5094409354abfde209368d471ff220c283b100",
+  "eos_threshold": -4.0,
+  "evaluation_sha256": "e4f42f5158d2e4377da25c58372e7f6ef1f3042c60259c95adbdbe5599d472a3",
+  "generation_seed": 20260727,
+  "human_review": {
+    "complete": true,
+    "decisions": {
+      "rejected": 4
+    }
+  },
+  "items": 4,
+  "likely_hit_max_generation": 1,
+  "lsd_decode_steps": 1,
+  "model_checkpoint_sha256": "f671b319a966322d03efc4555c667d1d4defdc080da0f59eddbb897bfc85a62c",
+  "model_config_sha256": "6ced29e50d4d8339c20529c028b059e136a74c33ddca206cd0521a829b37f811",
+  "overfit_items": 2,
+  "packet_manifest_sha256": "466d1ae99ef758c250519f2033b3417e731e33ddf6558346c0868127a905eecf",
+  "packet_review_sha256": "3023e60b2562c085c6519a2c728e7d8ccc3b2d3e38f7724063f880a55a46d3d2",
+  "probes_sha256": "1a201d6be63cc1ab1d90884ff5b0fbd24c8954f64e4b78d6cb437aea417ecfe8",
+  "schema_version": 1,
+  "smoke": true,
+  "temperature": 0.3
+}

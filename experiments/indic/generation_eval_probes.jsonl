@@ -1,0 +1,4 @@
+{"probe_id":"unseen_hindi_weather","language_mode":"hi","text_model_input":"खिड़की के बाहर हल्की बारिश हो रही है और बच्चे आँगन में खेल रहे हैं।","purpose":"Unseen everyday Hindi with aspiration, nasalization, and a compound verb."}
+{"probe_id":"unseen_hindi_schedule","language_mode":"hi","text_model_input":"कृपया अगले मंगलवार की बैठक सुबह दस बजे तय कर दीजिए।","purpose":"Unseen polite request with a number already written in spoken cardinal form."}
+{"probe_id":"unseen_hinglish_commute","language_mode":"hinglish","text_model_input":"आज weather बहुत अच्छा है, इसलिए मैं office पैदल जाऊँगा।","purpose":"Unseen intra-sentence code switching with common English words."}
+{"probe_id":"unseen_otp_digits","language_mode":"hi","text_model_input":"आपका ओटीपी एक दो तीन चार है, कृपया इसे किसी के साथ साझा न करें।","purpose":"Unseen OTP rendered as separate spoken digits rather than a cardinal number."}

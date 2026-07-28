@@ -1,0 +1,33 @@
+{
+  "base_config_sha256": "1917e582054de0c760b999f2ce3ff1e28f0ce09b9ab9e78e225c078438cbd3e6",
+  "base_model_sha256": "b6661073efe6dd9b94a1a5fc94d4cb19c506d84c62395a95d07aaca15109e148",
+  "completed_training_steps": 1,
+  "exported_config_path": "config.yaml",
+  "exported_config_sha256": "6ced29e50d4d8339c20529c028b059e136a74c33ddca206cd0521a829b37f811",
+  "exported_model_path": "model.safetensors",
+  "exported_model_sha256": "f671b319a966322d03efc4555c667d1d4defdc080da0f59eddbb897bfc85a62c",
+  "flow_lm_tensors_replaced": 127,
+  "non_flow_tensors_preserved": 87,
+  "schema_version": 1,
+  "strict_stock_load": true,
+  "training_checkpoint_metadata_sha256": "9cced0f72221314e8c16a27095f449cacc80ec4811f98ff1f39a0be0c5d94438",
+  "training_config": {
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "eos_loss_weight": 1.0,
+    "eos_positive_weight": 1.0,
+    "eos_threshold": -4.0,
+    "flow_matching_fraction": 0.75,
+    "head_batch_multiplier": 8,
+    "learning_rate": 3e-05,
+    "loss_combination": "sample_mean",
+    "max_grad_norm": 1.0,
+    "preserved_embedding_lr_scale": 0.1,
+    "preserved_vocab_size": 4000,
+    "seed": 20260727,
+    "weight_decay": 0.01
+  },
+  "training_flow_lm_sha256": "7b5330bcbfe53d3467967f97407a8bcc638fc37bfa7225a7bdf3562df9453da7"
+}

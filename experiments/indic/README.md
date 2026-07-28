@@ -675,3 +675,44 @@ The one-step smoke passed gradient, parameter-update, checkpoint, and resume
 checks. It also established a `15.95%` early EOS false-trigger baseline at the
 deployed `-4.0` threshold. E14 validates the harness, not learning or generated
 speech; those remain the one-H100 overfit gate.
+
+## E15: Export and evaluate generated speech
+
+`export_and_evaluate.py` converts a FlowLM-only trainer checkpoint into the
+complete state expected by stock Pocket TTS:
+
+```bash
+uv run python -m experiments.indic.export_and_evaluate export \
+  --training-checkpoint experiments/indic/outputs/e14_cpu_smoke/step_000001 \
+  --output-dir experiments/indic/outputs/e15_export_cpu_smoke
+```
+
+Export requires the trainer checkpoint hash to match its metadata and requires
+its tensor keys and shapes to match every FlowLM tensor in the base model. It
+then replaces all FlowLM tensors, preserves all non-FlowLM tensors bit-for-bit,
+writes a complete model and config, and strict-loads them through `TTSModel`.
+
+Run the fixed generation evaluation with:
+
+```bash
+uv run python -m experiments.indic.export_and_evaluate evaluate \
+  --model-config experiments/indic/outputs/e15_export_cpu_smoke/config.yaml \
+  --output-dir experiments/indic/outputs/e15_generation_cpu_smoke
+```
+
+Add `--smoke` to generate only four items: the first memorization text in both
+voices and the first unseen Hindi control in both voices. Without it, evaluation
+generates 16 overfit items and eight unseen Hindi/Hinglish controls.
+
+The control probes are committed in `generation_eval_probes.jsonl`. They include
+ordinary Hindi, a spoken-number scheduling request, Hinglish code switching,
+and an OTP rendered as separate spoken digits. Evaluation records fixed seeds,
+WAV hashes, durations, estimated maximum-frame hits, model and input hashes, and
+hash-bound human review decisions.
+
+The one-step CPU smoke strict-loaded successfully but all four generations
+failed human review: two ended early as silence/noise, one produced a sustained
+e-like sound to the maximum length, and one ended early as noise. This is the
+expected pre-overfit baseline, not evidence against the training pipeline.
+Details and the controlled H100 comparison contract are in
+[`E15_GENERATION_BASELINE.md`](E15_GENERATION_BASELINE.md).

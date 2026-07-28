@@ -1,0 +1,46 @@
+[
+  {
+    "decision": "rejected",
+    "generated_audio_file": "overfit_01_female.wav",
+    "generated_audio_sha256": "f76a44800ef57ea611bc205d3c9bdfd9edd4c03fa9f770a64cff4116a2dcf1bb",
+    "intelligible": false,
+    "item_id": "overfit_01_female",
+    "notes": "Human review: effectively no audible speech.",
+    "prompt_voice_matches": false,
+    "schema_version": 1,
+    "transcript_matches": false
+  },
+  {
+    "decision": "rejected",
+    "generated_audio_file": "overfit_01_male.wav",
+    "generated_audio_sha256": "21a432fbba1b72fa5a151b09ce025b76f6f1eb71ddfb806488bb6ac22761ddbe",
+    "intelligible": false,
+    "item_id": "overfit_01_male",
+    "notes": "Human review: only a brief noise at the start, roughly 0.1 seconds.",
+    "prompt_voice_matches": false,
+    "schema_version": 1,
+    "transcript_matches": false
+  },
+  {
+    "decision": "rejected",
+    "generated_audio_file": "unseen_hindi_weather_female.wav",
+    "generated_audio_sha256": "419bdeaf9d960a5f43852f18aea573bb689c72e9a831bb1e686153533871f825",
+    "intelligible": false,
+    "item_id": "unseen_hindi_weather_female",
+    "notes": "Human review: sustained e-like sound with no understandable words.",
+    "prompt_voice_matches": false,
+    "schema_version": 1,
+    "transcript_matches": false
+  },
+  {
+    "decision": "rejected",
+    "generated_audio_file": "unseen_hindi_weather_male.wav",
+    "generated_audio_sha256": "4e769802e31e10b572941729c28a45e0ead680b2115ceebc9eaff5c94eb567a4",
+    "intelligible": false,
+    "item_id": "unseen_hindi_weather_male",
+    "notes": "Human review: noise-like output. The user repeated the female path for the fourth observation; this note maps that fourth observation to the male item by sequence.",
+    "prompt_voice_matches": false,
+    "schema_version": 1,
+    "transcript_matches": false
+  }
+]
